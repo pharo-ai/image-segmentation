@@ -34,9 +34,15 @@ file := AIImageSegmentator imageDirectory / 'stamp.jpg'.
 
 segmentator := AIImageSegmentator new
   loadImage: file;
-  numberOfSegments: 2;
+  numberOfSegments: 3;
   yourself.
 	
 segmentator segmentate.
 segmentator openAll.
 ```
+
+![](img/stamp.jpg)
+![](img/segmented.png)
+![](img/segment1.png)
+![](img/segment2.png)
+![](img/segment3.png)
