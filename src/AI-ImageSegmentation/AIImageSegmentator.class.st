@@ -147,6 +147,12 @@ AIImageSegmentator >> openAll [
 		AIImagePresenter openImage: segment title: ('Segment ', i asString) ].
 ]
 
+{ #category : #accessing }
+AIImageSegmentator >> originalImage [
+
+	^ originalImage
+]
+
 { #category : #colors }
 AIImageSegmentator >> pixelValueAsRGBArray: anInteger [
 
@@ -162,6 +168,18 @@ AIImageSegmentator >> segmentate [
 	
 	segmentedImage := self buildSegmentedImage.
 	segments := self buildIndividualSegmentImages.
+]
+
+{ #category : #accessing }
+AIImageSegmentator >> segmentedImage [
+
+	^ segmentedImage
+]
+
+{ #category : #accessing }
+AIImageSegmentator >> segments [
+
+	^ segments
 ]
 
 { #category : #colors }
