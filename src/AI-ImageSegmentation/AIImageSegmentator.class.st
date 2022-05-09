@@ -57,7 +57,7 @@ AIImageSegmentator >> buildIndividualSegmentImages [
 
 	^ (1 to: numberOfSegments) collect: [ :i |
     	bits := Bitmap withAll:
-			(clusteringModel clusters collect: [ :cluster |
+			(self clusters collect: [ :cluster |
 				cluster = i
 					ifTrue: [ self colorAsPixelValue: (self segmentFillColor: i) ]
 					ifFalse: [ self colorAsPixelValue: self segmentBackgroundColor ] ]).
@@ -72,7 +72,7 @@ AIImageSegmentator >> buildSegmentedImage [
 	| bits |
 
 	bits := Bitmap withAll:
-		(clusteringModel clusters collect: [ :cluster |
+		(self clusters collect: [ :cluster |
 			self colorAsPixelValue: (self clusterColors at: cluster) ]).
 		
 	^ self imageFromBits: bits
@@ -84,6 +84,12 @@ AIImageSegmentator >> clusterColors [
 
 	^ clusteringModel centroids collect: [ :each |
 		Color fromRgbTriplet: each ].
+]
+
+{ #category : #accessing }
+AIImageSegmentator >> clusters [
+
+	^ clusteringModel clusters
 ]
 
 { #category : #colors }
