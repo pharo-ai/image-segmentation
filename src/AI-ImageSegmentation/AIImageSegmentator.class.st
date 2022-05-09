@@ -24,6 +24,7 @@ AIImageSegmentator class >> example1 [
 		numberOfSegments: 2;
 		yourself.
 	
+	segmentator findPixelClusters.
 	segmentator segmentate.
 	segmentator openAll.
 ]
@@ -40,6 +41,7 @@ AIImageSegmentator class >> example2 [
 		numberOfSegments: 5;
 		yourself.
 	
+	segmentator findPixelClusters.
 	segmentator segmentate.
 	segmentator openAll.
 ]
