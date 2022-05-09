@@ -6,17 +6,11 @@ Class {
 		'segmentedImage',
 		'segments',
 		'clusters',
-		'colors',
-		'numberOfSegments'
+		'numberOfSegments',
+		'clusterColors'
 	],
 	#category : #'AI-ImageSegmentation'
 }
-
-{ #category : #'as yet unclassified' }
-AIImageSegmentator class >> defaultColors [
-
-	^ RSColorPalette qualitative set18 range.
-]
 
 { #category : #examples }
 AIImageSegmentator class >> example1 [
@@ -71,7 +65,7 @@ AIImageSegmentator >> buildIndividualSegmentImages [
     	bits := Bitmap withAll:
 			(clusters collect: [ :cluster |
 				cluster = i
-					ifTrue: [ self blackPixelValue ]
+					ifTrue: [ self colorAsPixelValue: (clusterColors at: cluster) ]
 					ifFalse: [ self whitePixelValue ] ]).
 				
 		self imageFromBits: bits ].
@@ -85,7 +79,7 @@ AIImageSegmentator >> buildSegmentedImage [
 
 	bits := Bitmap withAll:
 		(clusters collect: [ :cluster |
-			self colorAsPixelValue: (colors at: cluster) ]).
+			self colorAsPixelValue: (clusterColors at: cluster) ]).
 		
 	^ self imageFromBits: bits
 	
@@ -94,13 +88,13 @@ AIImageSegmentator >> buildSegmentedImage [
 { #category : #colors }
 AIImageSegmentator >> colorAsPixelValue: aColor [
 
-	^ aColor pixelValueForDepth: originalImage depth
+	^ aColor pixelValueForDepth: self depth
 ]
 
 { #category : #accessing }
-AIImageSegmentator >> colors: aCollectionOfColors [
+AIImageSegmentator >> depth [
 
-	colors := aCollectionOfColors
+	^ originalImage depth
 ]
 
 { #category : #'as yet unclassified' }
@@ -108,12 +102,17 @@ AIImageSegmentator >> findPixelClusters [
 
 	| pixelData model |
 
-	pixelData := originalImage bits asOrderedCollection collect: [ :each | { each } ].
+	pixelData := originalImage bits asOrderedCollection collect: [ :pixelValue |
+		self pixelValueAsRGBArray: pixelValue ].
 
 	model := AIKMeans numberOfClusters: numberOfSegments.
+	model timesToRun: 1.
 	model fit: pixelData.
 	
-	^ model clusters.
+	clusters := model clusters.
+	
+	clusterColors := model centroids collect: [ :each |
+		Color fromRgbTriplet: each ].
 ]
 
 { #category : #'as yet unclassified' }
@@ -121,15 +120,8 @@ AIImageSegmentator >> imageFromBits: aCollectionOfPixelValues [
 
 	^ Form
 		extent: originalImage extent
-		depth: originalImage depth
+		depth: self depth
 		bits: aCollectionOfPixelValues.
-]
-
-{ #category : #initialization }
-AIImageSegmentator >> initialize [
-	super initialize.
-	
-	colors := self class defaultColors.
 ]
 
 { #category : #accessing }
@@ -156,9 +148,18 @@ AIImageSegmentator >> openAll [
 ]
 
 { #category : #'as yet unclassified' }
+AIImageSegmentator >> pixelValueAsRGBArray: anInteger [
+
+	| color |
+	color := anInteger asColorOfDepth: self depth.
+	^ { color red . color green . color blue }
+]
+
+{ #category : #'as yet unclassified' }
 AIImageSegmentator >> segmentate [
 
-	clusters := self findPixelClusters.
+	self findPixelClusters.
+	
 	segmentedImage := self buildSegmentedImage.
 	segments := self buildIndividualSegmentImages.
 ]
