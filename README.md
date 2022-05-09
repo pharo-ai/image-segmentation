@@ -6,8 +6,6 @@
 
 Example of image segmentation in [Pharo](https://pharo.org) based on [k-means clustering](https://github.com/pharo-ai/k-means).
 
-![](img/SegmentationProcess.png)
-
 ## How to install it
 
 To install `image-segmentation`, go to the Playground (Ctrl+OW) in your [Pharo](https://pharo.org/) image and execute the following Metacello script (select it and press Do-it button or Ctrl+D):
@@ -33,16 +31,21 @@ spec
 
 ```st
 file := AIImageSegmentator imageDirectory / 'stamp.jpg'.
-
+```
+![](img/stamp.jpg)
+```st
 segmentator := AIImageSegmentator new
   loadImage: file;
   numberOfSegments: 3;
   yourself.
 	
 segmentator segmentate.
-segmentator openAll.
 ```
-
-![](img/stamp.jpg)
+```st
+segmentator segmentatedImage.
+```
 ![](img/segmented.png)
+```st
+segmentator segments.
+```
 ![](img/Segments.png)
