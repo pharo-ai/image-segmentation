@@ -5,9 +5,9 @@ Class {
 		'originalImage',
 		'segmentedImage',
 		'segments',
-		'clusters',
 		'numberOfSegments',
-		'clusterColors'
+		'clusteringModel',
+		'whiteOnBlackSegments'
 	],
 	#category : #'AI-ImageSegmentation'
 }
@@ -50,12 +50,6 @@ AIImageSegmentator class >> imageDirectory [
 	^ 'pharo-local/iceberg/pharo-ai/image-segmentation/img' asFileReference
 ]
 
-{ #category : #colors }
-AIImageSegmentator >> blackPixelValue [
-
-	^ self colorAsPixelValue: Color black
-]
-
 { #category : #segmentation }
 AIImageSegmentator >> buildIndividualSegmentImages [
 
@@ -63,10 +57,10 @@ AIImageSegmentator >> buildIndividualSegmentImages [
 
 	^ (1 to: numberOfSegments) collect: [ :i |
     	bits := Bitmap withAll:
-			(clusters collect: [ :cluster |
+			(clusteringModel clusters collect: [ :cluster |
 				cluster = i
-					ifTrue: [ self colorAsPixelValue: (clusterColors at: cluster) ]
-					ifFalse: [ self whitePixelValue ] ]).
+					ifTrue: [ self colorAsPixelValue: (self segmentFillColor: i) ]
+					ifFalse: [ self colorAsPixelValue: self segmentBackgroundColor ] ]).
 				
 		self imageFromBits: bits ].
 	
@@ -78,11 +72,18 @@ AIImageSegmentator >> buildSegmentedImage [
 	| bits |
 
 	bits := Bitmap withAll:
-		(clusters collect: [ :cluster |
-			self colorAsPixelValue: (clusterColors at: cluster) ]).
+		(clusteringModel clusters collect: [ :cluster |
+			self colorAsPixelValue: (self clusterColors at: cluster) ]).
 		
 	^ self imageFromBits: bits
 	
+]
+
+{ #category : #accessing }
+AIImageSegmentator >> clusterColors [
+
+	^ clusteringModel centroids collect: [ :each |
+		Color fromRgbTriplet: each ].
 ]
 
 { #category : #colors }
@@ -100,19 +101,22 @@ AIImageSegmentator >> depth [
 { #category : #segmentation }
 AIImageSegmentator >> findPixelClusters [
 
-	| pixelData model |
+	| data |
 
-	pixelData := originalImage bits asOrderedCollection collect: [ :pixelValue |
+	data := originalImage bits asOrderedCollection collect: [ :pixelValue |
 		self pixelValueAsRGBArray: pixelValue ].
 
-	model := AIKMeans numberOfClusters: numberOfSegments.
-	model timesToRun: 1.
-	model fit: pixelData.
-	
-	clusters := model clusters.
-	
-	clusterColors := model centroids collect: [ :each |
-		Color fromRgbTriplet: each ].
+	clusteringModel := (AIKMeans numberOfClusters: numberOfSegments)
+		timesToRun: 1;
+		yourself.
+		
+	clusteringModel fit: data.
+]
+
+{ #category : #accessing }
+AIImageSegmentator >> image: aForm [
+
+	originalImage := aForm
 ]
 
 { #category : #segmentation }
@@ -124,7 +128,13 @@ AIImageSegmentator >> imageFromBits: aCollectionOfPixelValues [
 		bits: aCollectionOfPixelValues.
 ]
 
-{ #category : #accessing }
+{ #category : #initialization }
+AIImageSegmentator >> initialize [
+	super initialize.
+	whiteOnBlackSegments := false.
+]
+
+{ #category : #loading }
 AIImageSegmentator >> loadImage: aFileReference [
 
 	aFileReference binaryReadStreamDo: [ :stream |
@@ -161,6 +171,22 @@ AIImageSegmentator >> pixelValueAsRGBArray: anInteger [
 	^ { color red . color green . color blue }
 ]
 
+{ #category : #colors }
+AIImageSegmentator >> segmentBackgroundColor [
+
+	^ whiteOnBlackSegments
+		ifTrue: [ Color black ]
+		ifFalse: [ Color white ]
+]
+
+{ #category : #colors }
+AIImageSegmentator >> segmentFillColor: aSegmentIndex [
+
+	^ whiteOnBlackSegments
+		ifTrue: [ Color white ]
+		ifFalse: [ self clusterColors at: aSegmentIndex ]
+]
+
 { #category : #segmentation }
 AIImageSegmentator >> segmentate [
 
@@ -182,8 +208,8 @@ AIImageSegmentator >> segments [
 	^ segments
 ]
 
-{ #category : #colors }
-AIImageSegmentator >> whitePixelValue [
+{ #category : #accessing }
+AIImageSegmentator >> whiteOnBlackSegments: aBoolean [
 
-	^ self colorAsPixelValue: Color white
+	whiteOnBlackSegments := aBoolean
 ]
