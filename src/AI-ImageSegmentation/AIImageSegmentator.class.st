@@ -196,7 +196,8 @@ AIImageSegmentator >> segmentFillColor: aSegmentIndex [
 { #category : #segmentation }
 AIImageSegmentator >> segmentate [
 
-	self findPixelClusters.
+	clusteringModel ifNil: [
+		self error: 'You must call findPixelClusters first' ].
 	
 	segmentedImage := self buildSegmentedImage.
 	segments := self buildIndividualSegmentImages.
