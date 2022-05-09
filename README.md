@@ -30,22 +30,45 @@ spec
 ## How to use it
 
 ```st
-file := AIImageSegmentator imageDirectory / 'stamp.jpg'.
+file := 'pharo-local/iceberg/pharo-ai/image-segmentation/img/stamp.jpg' asFileReference.
+
+file binaryReadStreamDo: [ :stream |
+  image := ImageReadWriter formFromStream: stream ].
 ```
+
 ![](img/stamp.jpg)
+
 ```st
 segmentator := AIImageSegmentator new
-  loadImage: file;
+  image: image;
   numberOfSegments: 3;
   yourself.
-	
+```
+
+```st
+segmentator findPixelClusters.
+```
+
+```st
+segmentator clusters. "#(2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 1 1 1 ...etc...)"
+
+segmentator clusterColors. "an OrderedCollection(
+  (Color r: 0.5933528836754643 g: 0.7390029325513197 b: 0.8074291300097751 alpha: 1.0)
+  (Color r: 0.36656891495601174 g: 0.30596285434995113 b: 0.2375366568914956 alpha: 1.0)
+  (Color r: 0.8484848484848485 g: 0.6881720430107527 b: 0.3509286412512219 alpha: 1.0))"
+```
+
+```st
 segmentator segmentate.
 ```
 ```st
 segmentator segmentatedImage.
 ```
+
 ![](img/segmented.png)
+
 ```st
 segmentator segments.
 ```
+
 ![](img/Segments.png)
