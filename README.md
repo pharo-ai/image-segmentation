@@ -30,5 +30,13 @@ spec
 ## How to use it
 
 ```st
+file := AIImageSegmentator imageDirectory / 'stamp.jpg'.
 
+segmentator := AIImageSegmentator new
+  loadImage: file;
+  numberOfSegments: 2;
+	yourself.
+	
+segmentator segmentate.
+segmentator openAll.
 ```
