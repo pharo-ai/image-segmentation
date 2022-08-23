@@ -17,14 +17,14 @@ AIImageSegmentator class >> example1 [
 	<example>
 	
 	| file segmentator |
-	file := self imageDirectory / 'putler.jpeg'.
+	file := self imageDirectory / 'arid_mountain.jpg'.
 
 	segmentator := self new
 		loadImage: file;
 		numberOfSegments: 2;
 		yourself.
 	
-	segmentator findPixelClusters.
+	segmentator clusterImagePixels.
 	segmentator segmentate.
 	segmentator openAll.
 ]
@@ -34,14 +34,14 @@ AIImageSegmentator class >> example2 [
 	<example>
 	
 	| file segmentator |
-	file := self imageDirectory / 'stamp.jpg'.
+	file := self imageDirectory / 'renoir_river.jpg'.
 
 	segmentator := self new
 		loadImage: file;
-		numberOfSegments: 5;
+		numberOfSegments: 3;
 		yourself.
 	
-	segmentator findPixelClusters.
+	segmentator clusterImagePixels.
 	segmentator segmentate.
 	segmentator openAll.
 ]
@@ -109,6 +109,21 @@ AIImageSegmentator >> clusterColors [
 		Color fromRgbTriplet: each ].
 ]
 
+{ #category : #segmentation }
+AIImageSegmentator >> clusterImagePixels [
+
+	| data |
+
+	data := originalImage bits asOrderedCollection collect: [ :pixelValue |
+		self pixelValueAsRGBArray: pixelValue ].
+
+	clusteringModel := (AIKMeans numberOfClusters: numberOfSegments)
+		timesToRun: 1;
+		yourself.
+		
+	clusteringModel fit: data.
+]
+
 { #category : #accessing }
 AIImageSegmentator >> clusters [
 
@@ -125,21 +140,6 @@ AIImageSegmentator >> colorAsPixelValue: aColor [
 AIImageSegmentator >> depth [
 
 	^ originalImage depth
-]
-
-{ #category : #segmentation }
-AIImageSegmentator >> findPixelClusters [
-
-	| data |
-
-	data := originalImage bits asOrderedCollection collect: [ :pixelValue |
-		self pixelValueAsRGBArray: pixelValue ].
-
-	clusteringModel := (AIKMeans numberOfClusters: numberOfSegments)
-		timesToRun: 1;
-		yourself.
-		
-	clusteringModel fit: data.
 ]
 
 { #category : #accessing }
@@ -220,7 +220,7 @@ AIImageSegmentator >> segmentFillColor: aSegmentIndex [
 AIImageSegmentator >> segmentate [
 
 	clusteringModel ifNil: [
-		self error: 'You must call findPixelClusters first' ].
+		self error: 'You must call clusterImagePixels first' ].
 	
 	segmentedImage := self buildSegmentedImage.
 	segments := self buildIndividualSegmentImages.
