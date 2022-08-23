@@ -70,7 +70,7 @@ AIImageSegmentator class >> openImagePresenter: image title: title [
 { #category : #default }
 AIImageSegmentator class >> windowExtent [
 
-	^ 800 @ 800
+	^ 1000 @ 1000
 ]
 
 { #category : #segmentation }
