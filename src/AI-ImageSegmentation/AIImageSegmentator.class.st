@@ -52,6 +52,27 @@ AIImageSegmentator class >> imageDirectory [
 	^ 'pharo-local/iceberg/pharo-ai/image-segmentation/img' asFileReference
 ]
 
+{ #category : #default }
+AIImageSegmentator class >> openImagePresenter: image title: title [
+
+	| imagePresenter window |
+	imagePresenter := SpImagePresenter new.
+	imagePresenter image: image.
+	window := imagePresenter open.
+	window
+		extent: self windowExtent;
+		title: title.
+		
+	^ imagePresenter
+	
+]
+
+{ #category : #default }
+AIImageSegmentator class >> windowExtent [
+
+	^ 800 @ 800
+]
+
 { #category : #segmentation }
 AIImageSegmentator >> buildIndividualSegmentImages [
 
@@ -158,11 +179,11 @@ AIImageSegmentator >> numberOfSegments: anInteger [
 { #category : #displaying }
 AIImageSegmentator >> openAll [
 
-	AIImagePresenter openImage: originalImage title: 'Original Image'.
-	AIImagePresenter openImage: segmentedImage title: 'Segmented Image'.
+	self class openImagePresenter: originalImage title: 'Original Image'.
+	self class openImagePresenter: segmentedImage title: 'Segmented image'.
 
-	segments doWithIndex: [ :segment :i |
-		AIImagePresenter openImage: segment title: ('Segment ', i asString) ].
+	segments doWithIndex: [ :segment :i | 
+		self class openImagePresenter: segment title: 'Segment ' , i asString ]
 ]
 
 { #category : #accessing }
